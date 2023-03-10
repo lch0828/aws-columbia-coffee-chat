@@ -1,0 +1,344 @@
+swagger: '2.0'
+info:
+  title: Columbia Coffee Chat API
+  description: 'Columbia Coffee Chat application, built during the Cloud and Big Data course at Columbia University.'
+  version: 1.0.0
+schemes:
+  - https
+basePath: /v1
+paths:
+  /auth/login:
+    post:
+      summary: Log into user account.
+      description: |
+        Logs user into their account given username and password, or
+        rejects if user account is not found or valid.
+      tags:
+        - auth
+      operationId: authLogin
+      produces:
+        - application/json
+      parameters:
+        - name: loginInfo
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/LoginInfo'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/LoginSuccess'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /auth/register:
+    post:
+      summary: Create user account.
+      description: |
+        Registers a user account given username and password, or
+        rejects if user account is invalid or already exists.
+      tags:
+        - auth
+      operationId: authRegister
+      produces:
+        - application/json
+      parameters:
+        - name: loginInfo
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/LoginInfo'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/GeneralSuccess'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /auth/resetpassword:
+    post:
+      summary: Reset user's password.
+      description: |
+        Reset user's password by their username.
+      tags:
+        - auth
+      operationId: authReset
+      produces:
+        - application/json
+      parameters:
+        - name: username
+          in: body
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/GeneralSuccess'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /profile/public/{userId}:
+    get:
+      summary: Find user's public profile by ID.
+      description: |
+        Returns user's public profile info.
+      tags:
+        - profile
+      operationId: getUserById
+      produces:
+        - application/json
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Profile'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /profile/private/{userId}:
+    get:
+      summary: Find user's private profile by ID.
+      description: |
+        Returns user's private profile info.
+      tags:
+        - profile
+      operationId: getUserPrivateById
+      produces:
+        - application/json
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          type: string
+        - name: authToken
+          in: query
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Profile'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /profile/edit:
+    put:
+      summary: Edit user's profile by ID.
+      description: |
+        Edit user's profile info.
+      tags:
+        - profile
+      operationId: editUserProfile
+      produces:
+        - application/json
+      parameters:
+        - name: profile
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ProfileEdit'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/GeneralSuccess'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /match/current/{userId}:
+    get:
+      summary: Get user's current match by ID.
+      description: |
+        Returns matched user's profile.
+      tags:
+        - match
+      operationId: getCurrentMatch
+      produces:
+        - application/json
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          type: string
+        - name: authToken
+          in: query
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/Match'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /match/past/{userId}:
+    get:
+      summary: Get user's past matches by ID.
+      description: |
+        Returns past match's profiles.
+      tags:
+        - match
+      operationId: getPastMatches
+      produces:
+        - application/json
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          type: string
+        - name: authToken
+          in: query
+          required: true
+          type: string
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Match'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+  /match/submitReview:
+    put:
+      summary: Submit review for a meeting.
+      description: |
+        Submit review for a meeting by meeting ID.
+      tags:
+        - match
+      operationId: submitMatchReview
+      produces:
+        - application/json
+      parameters:
+        - name: match
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/MatchEdit'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Profile'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
+definitions:
+  Profile:
+    type: object
+    properties:
+      userId:
+        type: string
+      profile_info:
+        type: string
+  ProfileEdit:
+    type: object
+    properties:
+      profile:
+        $ref: '#/definitions/Profile'
+      authToken:
+        type: string
+  Match:
+    type: object
+    properties:
+      matchId:
+        type: string
+      user1Id:
+        type: string
+      user2Id:
+        type: string
+      review:
+        type: string
+  MatchEdit:
+    type: object
+    properties:
+      profile:
+        $ref: '#/definitions/Match'
+      authToken:
+        type: string
+  LoginInfo:
+    type: object
+    properties:
+      username:
+        type: string
+      password_encrypted:
+        type: string
+  LoginSuccess:
+    type: object
+    properties:
+      status:
+        type: boolean
+      authToken:
+        type: string
+  GeneralSuccess:
+    type: object
+    properties:
+      status:
+        type: boolean
+  Error:
+    type: object
+    properties:
+      code:
+        type: integer
+        format: int32
+      message:
+        type: string
