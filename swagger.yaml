@@ -271,9 +271,7 @@ paths:
         '200':
           description: successful operation
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Profile'
+            $ref: '#/definitions/GeneralSuccess'
         '403':
           description: Unauthorized
           schema:
@@ -287,6 +285,10 @@ definitions:
     type: object
     properties:
       userId:
+        type: string
+      active_or_not:
+        type: boolean
+      avatar_pic_base64:
         type: string
       profile_info:
         type: string
@@ -320,7 +322,9 @@ definitions:
     properties:
       username:
         type: string
-      password_encrypted:
+      email:
+        type: string
+      password:
         type: string
   LoginSuccess:
     type: object
