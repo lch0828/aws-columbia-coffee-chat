@@ -49,11 +49,11 @@ paths:
       produces:
         - application/json
       parameters:
-        - name: loginInfo
+        - name: RegisterInfo
           in: body
           required: true
           schema:
-            $ref: '#/definitions/LoginInfo'
+            $ref: '#/definitions/RegisterInfo'
       responses:
         '200':
           description: successful operation
@@ -347,12 +347,19 @@ definitions:
         $ref: '#/definitions/Match'
       authToken:
         type: string
-  LoginInfo:
+  RegisterInfo:
     type: object
     properties:
       username:
         type: string
       email:
+        type: string
+      password:
+        type: string
+  LoginInfo:
+    type: object
+    properties:
+      username_or_email:
         type: string
       password:
         type: string
