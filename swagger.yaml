@@ -67,6 +67,36 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
+  /auth/confirm:
+    post:
+      summary: Confirm user account.
+      description: |
+        Confirm a user account given username and confirmation code, or
+        rejects if code is invalid.
+      tags:
+        - auth
+      operationId: authConfirm
+      produces:
+        - application/json
+      parameters:
+        - name: ConfirmInfo
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ConfirmInfo'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/GeneralSuccess'
+        '403':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Unexpected error
+          schema:
+            $ref: '#/definitions/Error'
   /auth/resetpassword:
     post:
       summary: Reset user's password.
@@ -332,6 +362,13 @@ definitions:
       status:
         type: boolean
       authToken:
+        type: string
+  ConfirmInfo:
+    type: object
+    properties:
+      username:
+        type: string
+      confirmation_code:
         type: string
   GeneralSuccess:
     type: object
