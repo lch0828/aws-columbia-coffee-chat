@@ -345,6 +345,8 @@ definitions:
     properties:
       matchId:
         type: string
+      review:
+        type: string
       authToken:
         type: string
   RegisterInfo:
