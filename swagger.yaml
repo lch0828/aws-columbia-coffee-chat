@@ -343,8 +343,8 @@ definitions:
   MatchEdit:
     type: object
     properties:
-      profile:
-        $ref: '#/definitions/Match'
+      matchId:
+        type: string
       authToken:
         type: string
   RegisterInfo:
