@@ -41,7 +41,7 @@ def lambda_handler(event, context):
 
     if len(usrs) > 0:
         for users in groups.values():
-            for i in range(0, len(usrs), 2):
+            for i in range(0, len(users), 2):
                 if i == len(users) - 1:
                     leftovers.append(users[i])
                 else:
@@ -62,7 +62,7 @@ def lambda_handler(event, context):
         current_date = datetime.datetime.now()
         formatted_date = current_date.strftime('%Y-%m-%d')
         print(formatted_date)
-        
+
         for pair in pairs:
             match = {
                 'match_id': {
