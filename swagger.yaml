@@ -97,7 +97,7 @@ paths:
           description: Unexpected error
           schema:
             $ref: '#/definitions/Error'
-  /auth/resetpassword:
+  /auth/resetPassword:
     post:
       summary: Reset user's password.
       description: |
