@@ -26,67 +26,87 @@ def lambda_handler(event, context):
     print(usrs)
     
     # randomly pair users
-    usrs = [{'uuid': d['uuid']['S'], 'major': d['major']['S']} for d in usrs]
+    usrs = [{'uuid': d['uuid']['S'], 'major': d['major']['S'], 'school_year': d['school_year']['S'], 'program': d['program']['S'], 'classes': [c['S'] for i, c in enumerate(d['classes']['L']) if i < 5], 'interests': [c['S'] for i, c in enumerate(d['interests']['L']) if i < 5], 'match_pref': d['major_pref']['S']} for d in usrs]
 
-    # group by majors
+    users_same = [user for user in usrs if user['match_pref'] == 'same']
+    users_diff = [user for user in usrs if user['match_pref'] == 'different']
+
+    pairs = []
+    leftovers = users_diff
+    matched = set()
+
+    # groups
     groups = {}
+    majors = []
+    school_years = []
+    programs = []
+    classes = []
+    interests = []
 
-    for user in usrs:
+    for user in users_same:
         if user['major'] not in groups:
+            majors.append(user['major'])
             groups[user['major']] = []
         groups[user['major']].append(user['uuid'])
 
-    pairs = []
-    leftovers = []
+        if user['school_year'] not in groups:
+            school_years.append(user['school_year'])
+            groups[user['school_year']] = []
+        groups[user['school_year']].append(user['uuid'])
 
-    if len(usrs) > 0:
-        for users in groups.values():
-            for i in range(0, len(users), 2):
-                if i == len(users) - 1:
-                    leftovers.append(users[i])
+        if user['program'] not in groups:
+            programs.append(user['program'])
+            groups[user['program']] = []
+        groups[user['program']].append(user['uuid'])
+
+        for cls in user['classes']:
+            if cls not in groups:
+                classes.append(cls)
+                groups[cls] = []
+            groups[cls].append(user['uuid'])
+
+        for interest in user['interests']:
+            if interest not in groups:
+                interests.append(interest)
+                groups[interest] = []
+            groups[interest].append(user['uuid'])
+
+    keys = majors + classes + interests + school_years + programs
+
+    held_user = None
+    maybe_leftovers = []
+    for cluster in keys:
+        for i, user in enumerate(groups[cluster]):
+            if user not in matched and user != held_user:
+                if held_user is not None:
+                    pairs.append((held_user, user))
+                    matched.add(held_user)
+                    matched.add(user)
+                    held_user = None
                 else:
-                    pairs.append((users[i], users[i + 1]))
-    
+                    held_user = user
+            if i == len(groups[cluster]) - 1 and held_user is not None:
+                maybe_leftovers.append(held_user)
+                held_user = None
+
+    for user in maybe_leftovers:
+        if user not in matched:
+            leftovers.append(user)
+            matched.add(user)
+
     if len(leftovers) > 0:
         for i in range(0, len(leftovers), 2):
             if i == len(leftovers) - 1:
-                continue
+                pairs.append((leftovers[i], None))
             else:
                 pairs.append((leftovers[i], leftovers[i + 1]))
-        
-    for pair in pairs:
-        print(pair)
+    
+    # for pair in pairs:
+    #     print(pair)
     
     if len(pairs) > 0:
-        # store to db
-        current_date = datetime.datetime.now()
-        formatted_date = current_date.strftime('%Y-%m-%d')
-        print(formatted_date)
-
         for pair in pairs:
-            match = {
-                'match_id': {
-                    'S': formatted_date + pair[0] + str(pair[1]),
-                },
-                'review': {
-                    'S': 'N/A',
-                },
-                'user_id1': {
-                    'S': pair[0],
-                },
-                'user_id2': {
-                    'S': str(pair[1]),
-                },
-                'match_date': {
-                    'S': formatted_date,
-                },
-            }
-            dynamo_client.put_item(
-                TableName='columbia-coffee-chat-matches',
-                Item=match,
-            )
-        
-        # SQS
+            # SQS
             attr = {}
             attr['user_id1'] = {'StringValue':pair[0], 'DataType': 'String'}
             attr['user_id2'] = {'StringValue':str(pair[1]), 'DataType': 'String'}
