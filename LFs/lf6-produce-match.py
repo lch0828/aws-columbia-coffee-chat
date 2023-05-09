@@ -3,6 +3,7 @@ from botocore.exceptions import ClientError
 import json
 import random
 import datetime
+import inflection
 
 
 dynamo_client = boto3.client('dynamodb')
@@ -26,7 +27,15 @@ def lambda_handler(event, context):
     print(usrs)
     
     # randomly pair users
-    usrs = [{'uuid': d['uuid']['S'], 'major': d['major']['S'], 'school_year': d['school_year']['S'], 'program': d['program']['S'], 'classes': [c['S'] for i, c in enumerate(d['classes']['L']) if i < 5], 'interests': [c['S'] for i, c in enumerate(d['interests']['L']) if i < 5], 'match_pref': d['major_pref']['S']} for d in usrs]
+    usrs = [{
+        'uuid': inflection.singularize(d['uuid']['S']).lower(),
+        'major': inflection.singularize(d['major']['S']).lower(),
+        'school_year': inflection.singularize(d['school_year']['S']).lower(),
+        'program': inflection.singularize(d['program']['S']).lower(),
+        'classes': [inflection.singularize(c['S']).lower() for i, c in enumerate(d['classes']['L']) if i < 5],
+        'interests': [inflection.singularize(c['S']).lower() for i, c in enumerate(d['interests']['L']) if i < 5],
+        'match_pref': d['major_pref']['S']
+    } for d in usrs]
 
     users_same = [user for user in usrs if user['match_pref'] == 'same']
     users_diff = [user for user in usrs if user['match_pref'] == 'different']
