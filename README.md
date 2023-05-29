@@ -12,4 +12,4 @@
 
 * Run ```./package.sh``` to generate deployment for matching algorithm.
 
-* API definition is in ```swagger.yaml```, visualize at https://editor.swagger.io
+* API definition is in ```swagger.yaml```, visualize at https://editor.swagger.io .
